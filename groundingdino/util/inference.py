@@ -36,7 +36,7 @@ def load_model(model_config_path: str, model_checkpoint_path: str, device: str =
     return model
 
 
-def load_image(image_path: str) -> Tuple[np.array, torch.Tensor]:
+def load_image(image_path: str, scale=(1.0, 1.0)) -> Tuple[np.array, torch.Tensor]:
     transform = T.Compose(
         [
             T.RandomResize([800], max_size=1333),
@@ -45,6 +45,10 @@ def load_image(image_path: str) -> Tuple[np.array, torch.Tensor]:
         ]
     )
     image_source = Image.open(image_path).convert("RGB")
+    if scale[0] != 1.0 or scale[1] != 1.0:
+        size = image_source.size
+        image_source = image_source.resize((int(round(size[0] * scale[0])),
+                                            int(round(size[1] * scale[1]))))
     image = np.asarray(image_source)
     image_transformed, _ = transform(image_source, None)
     return image, image_transformed
